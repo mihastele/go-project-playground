@@ -6,22 +6,38 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"time"
+
+	_ "github.com/jackc/pgconn"
+	_ "github.com/jackc/pgx/v4"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 const webPort = "80"
 
+var counts int64
+
 type Config struct {
 	DB     *sql.DB
-	Models *data.Models
+	Models data.Models
 }
 
 func main() {
 	log.Println("Starting authentication service")
 
 	// Connect to the database
+	conn := connectToDb()
+
+	if conn == nil {
+		log.Panic("Failed to connect to database")
+	}
 
 	// set up config
-	app := Config{}
+	app := Config{
+		DB:     conn,
+		Models: data.New(conn),
+	}
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
@@ -34,4 +50,42 @@ func main() {
 		log.Panic(err)
 	}
 
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", dsn)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Check the connection
+	err = db.Ping()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
+func connectToDb() *sql.DB {
+	dsn := os.Getenv("DSN")
+
+	for {
+		connection, err := openDB(dsn)
+		if err != nil {
+			log.Println("Failed to connect to database, retrying in 5 seconds...")
+			time.Sleep(5 * time.Second)
+			counts++
+		} else {
+			log.Println("Connected to database")
+			return connection
+		}
+
+		if counts > 10 {
+			log.Println("Failed to connect to database after 10 attempts, exiting...")
+			os.Exit(1)
+		}
+	}
 }

@@ -42,7 +42,7 @@
                 method: 'POST',
             }
 
-            fetch("http:\/\/localhost:8080", body).then((response) => response.json()).then((data) => {
+            fetch("http:\/\/localhost:7070", body).then((response) => response.json()).then((data) => {
                 sent.innerHTML = "empty post req"
                 received.innerHTML = JSON.stringify(data, undefined, 4);
 
