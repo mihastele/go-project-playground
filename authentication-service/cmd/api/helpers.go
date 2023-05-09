@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type JsonResponse struct {
+type jsonResponse struct {
 	Error   bool   `json:"error"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
@@ -64,7 +64,7 @@ func (app *Config) errorJSON(w http.ResponseWriter, err error, status ...int) er
 		statusCode = status[0]
 	}
 
-	var payload JsonResponse
+	var payload jsonResponse
 	payload.Error = true
 	payload.Message = err.Error()
 

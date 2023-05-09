@@ -18,7 +18,7 @@ type AuthPayload struct {
 }
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
-	payload := JsonResponse{
+	payload := jsonResponse{
 		Error:   false,
 		Message: "Hit the broker",
 	}
@@ -77,7 +77,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, a AuthPayload) {
 	}
 
 	// create a variable we'll read response.Body into
-	var jsonFromService JsonResponse
+	var jsonFromService jsonResponse
 
 	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
 
@@ -91,7 +91,7 @@ func (app *Config) Authenticate(w http.ResponseWriter, a AuthPayload) {
 		return
 	}
 
-	var payload JsonResponse
+	var payload jsonResponse
 
 	payload.Error = false
 	payload.Message = "Successfully authenticated"
